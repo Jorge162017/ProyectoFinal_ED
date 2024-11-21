@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Propagación de Virus</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #373743;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #373743;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #52526e;
+        }
+
+        canvas {
+            margin-top: 30px;
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulación de Propagación de Virus</h1>
+        <div class="form-group">
+            <label for="q0">Computadoras iniciales infectadas (Q0):</label>
+            <input type="number" id="q0" value="10">
+        </div>
+        <div class="form-group">
+            <label for="k">Constante de propagación (K):</label>
+            <input type="number" step="0.01" id="k" value="0.51">
+        </div>
+        <div class="form-group">
+            <label for="hours">Duración en horas:</label>
+            <input type="number" id="hours" value="5">
+        </div>
+        <button onclick="simulate()">Simular</button>
+        <canvas id="chart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function simulate() {
+            const q0 = parseFloat(document.getElementById('q0').value);
+            const k = parseFloat(document.getElementById('k').value);
+            const hours = parseInt(document.getElementById('hours').value);
+
+            const labels = [];
+            const data = [];
+            for (let t = 0; t <= hours; t++) {
+                labels.push(`${t}h`);
+                data.push(q0 * Math.exp(k * t));
+            }
+
+            const ctx = document.getElementById('chart').getContext('2d');
+            if (window.chartInstance) {
+                window.chartInstance.destroy(); // Destruye el gráfico existente antes de crear uno nuevo
+            }
+            window.chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Computadoras infectadas',
+                        data: data,
+                        borderColor: '#373743',
+                        backgroundColor: 'rgba(55, 55, 67, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tiempo (h)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Computadoras infectadas'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
